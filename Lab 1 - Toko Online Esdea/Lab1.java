@@ -25,6 +25,7 @@ public class Lab1 {
         out = new PrintWriter(outputStream);
 
         int T = in.nextInt();
+        
         while (T-- > 0) {
             long N = in.nextLong();
             long ans = sumToN(N);

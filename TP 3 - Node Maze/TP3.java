@@ -1,9 +1,9 @@
 /* Referensi:
  * https://github.com/edutjie/sda222/blob/main/TP03/TP03.java
- * https://medium.com/@ankur.singh4012/implementing-min-heap-in-java-413d1c20f90d (MinHeap)
- * https://medium.com/@ankur.singh4012/implementing-max-heap-in-java-ea368dadd273 (MaxHeap)
- * https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/ (Dijkstra - modification)
- * https://stackoverflow.com/questions/41965431/dijkstra-algorithm-min-heap-as-a-min-priority-queue (Dijkstra - modification)
+ * https://medium.com/@ankur.singh4012/implementing-min-heap-in-java-413d1c20f90d
+ * https://medium.com/@ankur.singh4012/implementing-max-heap-in-java-ea368dadd273
+ * https://stackoverflow.com/questions/41965431/dijkstra-algorithm-min-heap-as-a-min-priority-queue
+ * Slide Kuliah SDA
  */
 
 import java.io.BufferedReader;

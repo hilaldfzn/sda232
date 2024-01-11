@@ -123,8 +123,8 @@ public class Lab7 {
             if ("A".equals(command)) {
                 long value = Long.parseLong(st.nextToken());
                 String state = st.nextToken();
-
                 Box boxBaru = new Box(boxes.size(), value, state);
+
                 boxes.add(boxBaru);
                 boxContainer.insert(boxBaru);
             } else if ("D".equals(command)) {

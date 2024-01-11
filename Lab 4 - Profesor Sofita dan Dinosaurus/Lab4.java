@@ -45,7 +45,6 @@ public class Lab4 {
             String S2 = in.next();
             
             memoDP = new int[M + 1][N + 1];
-            
             for (int i = 0; i <= M; i++) {
                 for (int j = 0; j <= N; j++) {
                     memoDP[i][j] = -1;

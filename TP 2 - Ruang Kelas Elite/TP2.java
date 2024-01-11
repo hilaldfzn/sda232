@@ -1,3 +1,13 @@
+/* Referensi:
+ * https://www.geeksforgeeks.org/introduction-to-doubly-linked-lists-in-java/
+ * https://www.geeksforgeeks.org/sorted-merge-of-two-sorted-doubly-circular-linked-lists/
+ * https://www.geeksforgeeks.org/merge-sort-for-linked-list/
+ * https://www.geeksforgeeks.org/insertion-in-an-avl-tree/
+ * https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
+ * https://www.geeksforgeeks.org/avl-with-duplicate-keys/
+ * Slide Kuliah SDA
+ */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
