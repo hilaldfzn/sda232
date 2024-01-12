@@ -13,8 +13,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class TP3 {
     private static InputReader in;

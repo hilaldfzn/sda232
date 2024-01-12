@@ -60,7 +60,6 @@ public class TP1 {
         }
 
         int T = in.nextInt();  // Jumlah aktivitas
-
         while (T-- > 0) {
             String query = in.next();
 
@@ -268,7 +267,6 @@ public class TP1 {
                         }
                     }
                 }
-
                 handleO(visitor, rides);
             }
         }
@@ -313,7 +311,7 @@ public class TP1 {
                 money -= rides.get(i).price;        // Kurangi uang pengunjung sesuai dengan harga wahana yang dimainkan
             }
         }
-        
+
         out.println();
     }   
     
@@ -326,8 +324,10 @@ public class TP1 {
             if (v.money <= 0) {
                 exitList.add(new Visitor(v.id, v.type, v.money, v.totalRides));
             }
+
             return true;
         }
+
         return false;
     }
 

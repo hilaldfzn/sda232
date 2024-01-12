@@ -108,7 +108,7 @@ public class TP2 {
                 return;
             }
 
-            int bonusTutor = siswaTree.countTutee(siswaTree.root, student.points) - 1;
+            int bonusTutor = siswaTree.getBonusTutor(siswaTree.root, student.points) - 1;
             int finalBonus = Math.min(taskPoints, bonusTutor);
 
             siswaTree.delete(siswaTree.root, student);
@@ -243,11 +243,11 @@ public class TP2 {
         classList.tail.next = null;
     
         classList.head = classList.sort(classList.head);
-    
-        ClassNode temp = classList.head;
-        ClassNode prevNode = null;
+        
         int tempPos = 1;
         int pakcilPos = 1;
+        ClassNode prevNode = null;
+        ClassNode temp = classList.head;
     
         while (temp != null) {
             if (temp == classList.pakcilNow) {
@@ -370,17 +370,17 @@ class CircularDoublyLL {
         }
         
         ClassNode newNode = new ClassNode(treeSiswa);
-        if (size == 0) {
-            newNode.next = newNode;
-            newNode.prev = newNode;
-            head = newNode;
-            pakcilNow = newNode;
-            tail = newNode;
-        } else {
+        if (size != 0) {
             newNode.prev = tail;
             newNode.next = head;
             tail.next = newNode;
             head.prev = newNode;
+            tail = newNode;
+        } else {
+            newNode.next = newNode;
+            newNode.prev = newNode;
+            head = newNode;
+            pakcilNow = newNode;
             tail = newNode;
         }
         size++;
@@ -500,16 +500,16 @@ class StudentTree implements Comparable<StudentTree> {
         this.classId = classId;
     }
 
-    int countTutee(StudentNode node, int points) {
+    int getBonusTutor(StudentNode node, int points) {
         if (node == null) {
             return 0;
         }
 
         if (node.student.points > points) {
-            return countTutee(node.left, points);
+            return getBonusTutor(node.left, points);
         }
 
-        return 1 + size(node.left) + countTutee(node.right, points);
+        return 1 + size(node.left) + getBonusTutor(node.right, points);
     }
 
     int height(StudentNode node) {
@@ -536,32 +536,36 @@ class StudentTree implements Comparable<StudentTree> {
         return height(node.left) - height(node.right);
     }
 
-    StudentNode singleLeftRotate(StudentNode node) {
-        StudentNode node2 = node.right;
-        node.right = node2.left;
-        node2.left = node;
+    StudentNode singleLeftRotate(StudentNode x) {
+        StudentNode y = x.right; 
+        StudentNode T2 = y.left; 
+  
+        y.left = x; 
+        x.right = T2; 
+        
+        x.height = 1 + Math.max(height(x.left), height(x.right)); 
+        y.height = 1 + Math.max(height(y.left), height(y.right)); 
 
-        node.height = Math.max(height(node.left), height(node.right)) + 1;
-        node2.height = Math.max(height(node2.left), height(node2.right)) + 1;
-
-        node.size = 1 + size(node.left) + size(node.right);
-        node2.size = 1 + size(node2.left) + size(node2.right);
-
-        return node2;
+        x.size = 1 + size(x.left) + size(x.right);
+        y.size = 1 + size(y.left) + size(y.right);
+   
+        return y; 
     }
 
-    StudentNode singleRightRotate(StudentNode node) {
-        StudentNode node2 = node.left;
-        node.left = node2.right;
-        node2.right = node;
+    StudentNode singleRightRotate(StudentNode y) {
+        StudentNode x = y.left; 
+        StudentNode T2 = x.right; 
+  
+        x.right = y; 
+        y.left = T2; 
+  
+        y.height = 1 + Math.max(height(y.left), height(y.right)); 
+        x.height = 1 + Math.max(height(x.left), height(x.right));
 
-        node.height = Math.max(height(node.left), height(node.right)) + 1;
-        node2.height = Math.max(height(node2.left), height(node2.right)) + 1;
-
-        node.size = 1 + size(node.left) + size(node.right);
-        node2.size = 1 + size(node2.left) + size(node2.right);
-
-        return node2;
+        y.size = 1 + size(y.left) + size(y.right);
+        x.size = 1 + size(x.left) + size(x.right);
+  
+        return x;
     }
 
     void insert(StudentNode node, Student student) {
