@@ -5,20 +5,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
+import java.util.Queue;
 import java.util.HashMap;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.List;
 
 public class TP1 {
     private static InputReader in;
     private static PrintWriter out;
+    private static int[][][] dp, pick;                                          // Tabel DP dan pilihan untuk mengoptimalkan rencana pengunjung
     private static HashMap<Integer, Ride> rideIdMap = new HashMap<>();          // HashMap untuk menyimpan wahana berdasarkan ID
     private static HashMap<Integer, Visitor> visitorIdMap = new HashMap<>();    // HashMap untuk menyimpan pengunjung berdasarkan ID
     private static ArrayDeque<Visitor> exitList = new ArrayDeque<>();           // Daftar keluar pengunjung ketika uang habis atau tidak cukup untuk antre wahana
-    private static int[][][] dp, pick;  // Tabel DP dan pilihan untuk mengoptimalkan rencana pengunjung
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -27,7 +25,6 @@ public class TP1 {
         out = new PrintWriter(outputStream);
 
         int M = in.nextInt(); // Jumlah Wahana
-        List<Ride> rides = new ArrayList<>();
 
         // Membaca input untuk atribut setiap wahana
         // Menambahkan wahana ke list dan map berdasarkan ID
@@ -39,12 +36,10 @@ public class TP1 {
             int fastTrackPercent = in.nextInt();
             int maxFT = (int) Math.ceil(capacity * fastTrackPercent / 100.0);       // Kapasitas maksimum untuk FT dalam antrean wahana (pembulatan ke atas)
 
-            rides.add(new Ride(i + 1, price, points, capacity, maxFT));
             rideIdMap.put(i + 1, new Ride(i + 1, price, points, capacity, maxFT));
         }
 
         int N = in.nextInt();  // Jumlah pengunjung
-        List<Visitor> visitors = new ArrayList<>();
         int maxMoney = -1;
 
         // Membaca input untuk atribut setiap pengunjung
@@ -54,8 +49,11 @@ public class TP1 {
             String type = in.next();
             int money = in.nextInt();
 
-            if (money > maxMoney) maxMoney = money;     // Menentukan uang terbanyak yang dimiliki pengunjung
-            visitors.add(new Visitor(i + 1, type, money, 0));
+            // Menentukan uang terbanyak yang dimiliki pengunjung
+            if (money > maxMoney) {
+                maxMoney = money;
+            }
+
             visitorIdMap.put(i + 1, new Visitor(i + 1, type, money, 0));
         }
 
@@ -64,7 +62,7 @@ public class TP1 {
             String query = in.next();
 
             // Query A: Menambahkan pengunjung ke antrean wahana
-            // Format: A [ID_PENGUNJUNG] [ID_WAHANA]
+            // Format: A [ID Pengunjung] [ID Wahana]
             if (query.equals("A")) {
                 int visitorId = in.nextInt();
                 int rideId = in.nextInt();
@@ -90,14 +88,13 @@ public class TP1 {
             } 
 
             // Query E: Memproses antrean wahana dan menampilkan ID pengunjung yang dapat memainkan wahana
-            // Format: E [ID_WAHANA]
+            // Format: E [ID Wahana]
             else if (query.equals("E")) {
                 int rideId = in.nextInt();
                 Ride ride = rideIdMap.get(rideId);
                 
                 int counterFT = 0;                      // Counter untuk jumlah pengunjung FT yang masuk
                 int counterR = 0;                       // Counter untuk jumlah pengunjung regular yang masuk
-
                 StringBuilder sb = new StringBuilder();
 
                 /* Urutan bermain dilihat dari jenis pengunjung, dimulai dari pengunjung FT
@@ -140,7 +137,7 @@ public class TP1 {
             } 
 
             // Query S: Mengecek posisi pengunjung dalam antrean suatu wahana
-            // Format: S [ID_PENGUNJUNG] [ID_WAHANA]
+            // Format: S [ID Pengunjung] [ID Wahana]
             else if (query.equals("S")) {
                 int visitorId = in.nextInt();
                 int rideId = in.nextInt();
@@ -213,14 +210,17 @@ public class TP1 {
 
                 // Jika P = 0, pilih pengunjung pertama pada daftar keluar
                 // Jika P = 1, pilih pengunjung terakhir pada daftar keluar
-                if (P == 0) { point = visitorIdMap.get(exitList.pollFirst().id).points; }
-                else { point = visitorIdMap.get(exitList.pollLast().id).points; }
+                if (P == 0) { 
+                    point = visitorIdMap.get(exitList.pollFirst().id).points; 
+                } else { 
+                    point = visitorIdMap.get(exitList.pollLast().id).points; 
+                }
 
                 out.println(point);     // Mencetak poin pengunjung yang terpilih dari daftar keluar
             } 
 
             // Query O: Mengoptimalkan pengeluaran uang pengunjung untuk mendapatkan poin maksimal
-            // Format: O [ID_PENGUNJUNG]
+            // Format: O [ID Pengunjung]
             //
             // Kondisi Tiebreaker:
             // Jika terdapat lebih dari satu rencana yang mungkin untuk mencapai poin maksimal, buatlah rencana 
@@ -229,45 +229,48 @@ public class TP1 {
             // indeks-indeks dari wahana yang dipilih memiliki urutan leksikografis paling rendah.
             else if (query.equals("O")) {
                 int visitorId = in.nextInt();
+                int numOfRides = rideIdMap.size();
                 Visitor visitor = visitorIdMap.get(visitorId);
- 
+
                 // Jika belum ada, maka inisialisasi DP dan pick
                 if (dp == null) {
-                    dp = new int[maxMoney + 2][3][rides.size() + 2];
-                    pick = new int[maxMoney + 2][3][rides.size() + 2];
+                    dp = new int[maxMoney + 2][3][numOfRides + 2];
+                    pick = new int[maxMoney + 2][3][numOfRides + 2];
 
                     // Iterasi untuk mengisi tabel DP
-                    for (int k = rides.size(); k >= 0 ; k--) {
+                    for (int k = numOfRides; k >= 0; k--) {
                         for (int i = maxMoney; i >= 0; i--) {
                             for (int j = 0; j <= 2; ++j) {
                                 // Base case: jika di wahana terakhir, atur nilai dp menjadi 0
-                                if (k == rides.size()) {
+                                if (k == numOfRides) {
                                     dp[i][j][k] = 0;
                                     continue;
                                 }
+
+                                Ride ride = rideIdMap.get(k + 1);
 
                                 // Menyalin nilai dari sub-problem yang lebih besar
                                 dp[i][j][k] = dp[i][j][k + 1];
 
                                 // Menentukan apakah akan memilih wahana saat ini berdasarkan harga dan poinnya
                                 // Cek kondisi spesifik untuk memutuskan apakah wahana k bisa diambil atau tidak
-                                if (k % 2 != j && i >= rides.get(k).price) {
+                                if (k % 2 != j && i >= ride.price) {
                                     // Perbarui dp jika memilih wahana saat ini menghasilkan rencana yang lebih baik
-                                    if (dp[i][j][k + 1] <= dp[i - rides.get(k).price][k % 2][k + 1] + rides.get(k).points) {
+                                    if (dp[i][j][k + 1] <= dp[i - ride.price][k % 2][k + 1] + ride.points) {
                                         // Update tabel DP jika mengambil wahana memberikan poin lebih banyak
-                                        dp[i][j][k] = dp[i - rides.get(k).price][k % 2][k + 1] + rides.get(k).points;
-                                        pick[i][j][k] = 1;       // Tandai wahana ini sebagai yang dipilih
+                                        dp[i][j][k] = dp[i - ride.price][k % 2][k + 1] + ride.points;
+                                        pick[i][j][k] = 1; // Tandai wahana ini sebagai yang dipilih
                                     } else {
-                                        pick[i][j][k] = 0;       // Tandai wahana ini tidak dipilih
+                                        pick[i][j][k] = 0; // Tandai wahana ini tidak dipilih
                                     }
                                 } else {
-                                    pick[i][j][k] = 0;           // Tandai wahana ini tidak dipilih
-                                }          
+                                    pick[i][j][k] = 0; // Tandai wahana ini tidak dipilih
+                                }
                             }
                         }
                     }
                 }
-                handleO(visitor, rides);
+                handleO(visitor);
             }
         }
 
@@ -279,13 +282,10 @@ public class TP1 {
      * pengunjung untuk mendapatkan jumlah poin maksimal yang mungkin.
      *
      * @param visitor Pengunjung yang akan dioptimalkan pengeluaran uangnya.
-     * @param rides   Daftar wahana yang tersedia.
      */
-    public static void handleO(Visitor visitor, List<Ride> rides) {
-        int maxRideId = rides.size();           // Jumlah maksimal wahana yang tersedia
+    private static void handleO(Visitor visitor) {
         int money = visitor.money;              // Jumlah uang yang dimiliki pengunjung
         int maxPoints =  dp[money][2][0];       // Mengambil poin maksimal yang dapat diperoleh dengan uang yang ada
-        int parity = 2;                         // Paritas ID (ganjil atau genap) digunakan untuk memilih wahana secara bergantian
 
         // Jika pengunjung tidak dapat membeli tiket untuk wahana apa pun, poin maksimal yang dapat diperoleh 0.
         if (maxPoints == 0) {
@@ -297,19 +297,22 @@ public class TP1 {
         out.print(maxPoints + " ");
 
         // Mengurangi uang hingga titik di mana poin maksimal berubah
-        while (money >= 1 && dp[money][2][0] == dp[money - 1][2][0]) money--;
+        while (money > 0 && dp[money][2][0] == dp[money - 1][2][0]) { 
+            money--;
+        }
 
-        // Iterasi melalui semua wahana
-        for (int i = 0; i < maxRideId; i++) {
-            if (money <= 0) break;                  // Keluar dari loop jika uang pengunjung habis
+        int id = 1;          // ID dimulai dari 1
+        int parity = 2;      // Paritas ID (ganjil atau genap) digunakan untuk memilih wahana secara bergantian
 
-            // Jika paritas sesuai dan wahana dipilih
-            if (parity != i % 2 && pick[money][parity][i] == 1) {
-                out.print((i + 1) + " ");           // Mencetak indeks wahana yang dipilih (ditambah 1 karena indeks mulai dari 0)
+        while (id <= rideIdMap.size() && money > 0) {
+            if (rideIdMap.containsKey(id) && parity != (id - 1) % 2 && pick[money][parity][id - 1] == 1) {
+                out.print(id + " ");
                 
-                parity = i % 2;                     // Mengganti paritas untuk memastikan perubahan ID wahana
-                money -= rides.get(i).price;        // Kurangi uang pengunjung sesuai dengan harga wahana yang dimainkan
+                parity = (id - 1) % 2;
+                money -= rideIdMap.get(id).price;
             }
+
+            id++;
         }
 
         out.println();
